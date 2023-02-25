@@ -8,8 +8,8 @@ from urllib.error import URLERROR
 # funcs
 def get_fruityvice_data(fruit):
   fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit)
-    fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
-    return fruityvice_normalized
+  fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+  return fruityvice_normalized
 
 # testing menu items
 streamlit.title("My Parents' New Healthy Diner") 

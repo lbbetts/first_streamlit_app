@@ -3,6 +3,13 @@ import streamlit
 import pandas
 import requests
 import snowflake.connector
+from urllib.error import URLERROR
+
+# funcs
+def get_fruityvice_data(fruit):
+  fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit)
+    fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+    return fruityvice_normalized
 
 # testing menu items
 streamlit.title("My Parents' New Healthy Diner") 
@@ -25,16 +32,24 @@ streamlit.dataframe(fruits_to_show)
 
 # APIs
 streamlit.header("Fruityvice Fruit Advice!")
-fruit_choice = streamlit.text_input('What fruit would you like information about?','Kiwi')
-streamlit.write('The user entered ', fruit_choice)
+try:
+  fruit_choice = streamlit.text_input('What fruit would you like information about?')
+  if not fruit_choice:
+    streamlit.error("Please select a fruit for information.")
+  else:
+#     back_from_function = get_fruityvice_data(fruit_choice)
+    streamlit.dataframe(get_fruityvice_data(fruit_choice))
+except URLError as e:
+  streamlit.error()
 
-fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + "kiwi")
 
-# formats fruityvice data
-fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
-# displays fruityvice in dataframe
-streamlit.dataframe(fruityvice_normalized)
 
+
+
+
+
+
+streamlit.stop()
 # snowflake integration
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
 my_cur = my_cnx.cursor()
@@ -46,5 +61,4 @@ streamlit.dataframe(my_data_rows)
 new_fruit = streamlit.text_input('What fruit would you like to add?')
 streamlit.write('Thanks for adding ', new_fruit)
 
-if new_fruit: 
-  my_data_rows += new_fruit
+my_cur.execute("insert into fruit_load_list values ('from streamlit')")
